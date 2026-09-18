@@ -1,7 +1,7 @@
 /// <reference types="vite/client" />
 import { test } from "vitest";
 import { convexTest } from "convex-test";
-export const modules = import.meta.glob("./**/*.*s");
+const modules = import.meta.glob("../component/_generated/**/*.*s");
 
 import {
   defineSchema,
@@ -23,4 +23,6 @@ export const components = componentsGeneric() as unknown as {
   databricksSync: ComponentApi;
 };
 
-test("setup", () => {});
+test("setup", () => {
+  initConvexTest();
+});

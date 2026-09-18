@@ -8,7 +8,12 @@ import type {
 } from "convex/server";
 import type { Value } from "convex/values";
 import type { ComponentApi } from "../component/_generated/component.js";
-import { buildSyncQuery, cursorToString, normalizeValue } from "./sql.js";
+import {
+  buildSyncQuery,
+  cursorToString,
+  normalizeValue,
+  SYNC_CURSOR_ALIAS,
+} from "./sql.js";
 
 const DEFAULT_BATCH_SIZE = 20_000;
 const DEFAULT_WRITE_CHUNK_SIZE = 1_000;
@@ -41,7 +46,7 @@ export type SyncConfig = {
   continueWith: FunctionReference<
     "action",
     "internal",
-    Record<string, never>,
+    { runId: string },
     null
   >;
   cursorColumn: string;
@@ -86,6 +91,25 @@ export class DatabricksSync {
     }
   }
 
+  async continue(ctx: ActionCtx, config: SyncConfig, runId: string) {
+    validateConfig(config);
+    try {
+      const resumed = await ctx.runMutation(this.component.state.resume, {
+        name: config.name,
+        sourceTable: config.sourceTable,
+        runId,
+      });
+      return await this.runPage(ctx, config, runId, resumed.cursor);
+    } catch (error) {
+      await ctx.runMutation(this.component.state.fail, {
+        name: config.name,
+        runId,
+        error: error instanceof Error ? error.message : String(error),
+      });
+      throw error;
+    }
+  }
+
   private async runPage(
     ctx: ActionCtx,
     config: SyncConfig,
@@ -117,7 +141,7 @@ export class DatabricksSync {
         columns: config.columns,
         rows,
       });
-      latestCursor = cursorToString(chunk.at(-1)?.[cursorColumn]);
+      latestCursor = cursorToString(chunk.at(-1)?.[SYNC_CURSOR_ALIAS]);
       await ctx.runMutation(this.component.state.checkpoint, {
         name: config.name,
         runId,
@@ -132,12 +156,13 @@ export class DatabricksSync {
         `Sync cannot advance because at least ${batchSize} rows share cursor ${latestCursor}`,
       );
     }
-    await ctx.runMutation(this.component.state.complete, {
-      name: config.name,
-      runId,
-    });
     if (hasMore) {
-      await ctx.scheduler.runAfter(0, config.continueWith, {});
+      await ctx.scheduler.runAfter(0, config.continueWith, { runId });
+    } else {
+      await ctx.runMutation(this.component.state.complete, {
+        name: config.name,
+        runId,
+      });
     }
     return {
       status: hasMore ? ("continuing" as const) : ("complete" as const),
@@ -205,7 +230,10 @@ function validateConfig(config: SyncConfig) {
   }
   if (
     config.columns.includes(cursorColumn) ||
-    config.columns.includes(deletedColumn)
+    config.columns.includes(deletedColumn) ||
+    config.columns.includes(SYNC_CURSOR_ALIAS) ||
+    cursorColumn === SYNC_CURSOR_ALIAS ||
+    deletedColumn === SYNC_CURSOR_ALIAS
   ) {
     throw new Error("Source columns must not include sync metadata columns");
   }

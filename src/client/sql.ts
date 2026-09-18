@@ -1,6 +1,7 @@
 import type { Value } from "convex/values";
 
 const IDENTIFIER = /^[A-Za-z_][A-Za-z0-9_$]*$/;
+export const SYNC_CURSOR_ALIAS = "__convex_sync_cursor";
 
 function quoteIdentifier(identifier: string) {
   if (!IDENTIFIER.test(identifier)) {
@@ -27,10 +28,15 @@ export function buildSyncQuery(args: {
 }) {
   const selectedColumns = args.columns.map(quoteIdentifier);
   const cursorColumn = quoteIdentifier(args.cursorColumn);
+  const cursorAlias = quoteIdentifier(SYNC_CURSOR_ALIAS);
   const deletedColumn = quoteIdentifier(args.deletedColumn);
   const table = quoteQualifiedIdentifier(args.sourceTable);
-  const where = args.cursor === null ? "" : ` WHERE ${cursorColumn} >= ?`;
-  return `SELECT ${[...selectedColumns, deletedColumn, cursorColumn].join(", ")} FROM ${table}${where} ORDER BY ${cursorColumn} ASC LIMIT ${args.batchSize}`;
+  const cursorProjection = `CAST(${cursorColumn} AS STRING) AS ${cursorAlias}`;
+  const where =
+    args.cursor === null
+      ? ""
+      : ` WHERE ${cursorColumn} >= CAST(? AS TIMESTAMP)`;
+  return `SELECT ${[...selectedColumns, deletedColumn, cursorProjection].join(", ")} FROM ${table}${where} ORDER BY ${cursorColumn} ASC LIMIT ${args.batchSize}`;
 }
 
 export function normalizeValue(value: unknown): Value {
@@ -71,11 +77,8 @@ export function normalizeValue(value: unknown): Value {
 }
 
 export function cursorToString(value: unknown) {
-  if (value instanceof Date) {
-    return value.toISOString();
-  }
   if (typeof value === "string") {
     return value;
   }
-  throw new Error("The Databricks cursor column must be a timestamp or string");
+  throw new Error("The Databricks cursor column must be returned as a string");
 }

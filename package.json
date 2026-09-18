@@ -44,6 +44,10 @@
       "default": "./dist/client/index.js"
     },
     "./test": "./src/test.ts",
+    "./validators": {
+      "types": "./dist/component/validators.d.ts",
+      "default": "./dist/component/validators.js"
+    },
     "./_generated/component.js": {
       "types": "./dist/component/_generated/component.d.ts"
     },

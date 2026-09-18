@@ -117,31 +117,33 @@ export const run = action({
 });
 
 export const continueRun = internalAction({
-  args: {},
+  args: { runId: v.string() },
   returns: v.null(),
-  handler: async (ctx): Promise<null> => {
-    await syncCustomers(ctx);
+  handler: async (ctx, { runId }): Promise<null> => {
+    await databricks.continue(ctx, syncConfig, runId);
     return null;
   },
 });
 
+const syncConfig = {
+  name: "customers",
+  sourceTable: "main.default.customers",
+  cursorColumn: "_fivetran_synced",
+  columns: ["id", "name", "email", "updated_at"],
+  credentials: {
+    host: env.DATABRICKS_HOST,
+    path: env.DATABRICKS_HTTP_PATH,
+    token: env.DATABRICKS_TOKEN,
+    ...(env.DATABRICKS_CATALOG ? { catalog: env.DATABRICKS_CATALOG } : {}),
+  },
+  applyRows: internal.customers.applyRows,
+  continueWith: internal.sync.continueRun,
+};
+
 async function syncCustomers(
   ctx: Parameters<typeof databricks.start>[0],
 ): Promise<RunResult> {
-  return await databricks.start(ctx, {
-    name: "customers",
-    sourceTable: "main.default.customers",
-    cursorColumn: "_fivetran_synced",
-    columns: ["id", "name", "email", "updated_at"],
-    credentials: {
-      host: env.DATABRICKS_HOST,
-      path: env.DATABRICKS_HTTP_PATH,
-      token: env.DATABRICKS_TOKEN,
-      ...(env.DATABRICKS_CATALOG ? { catalog: env.DATABRICKS_CATALOG } : {}),
-    },
-    applyRows: internal.customers.applyRows,
-    continueWith: internal.sync.continueRun,
-  });
+  return await databricks.start(ctx, syncConfig);
 }
 ```
 
@@ -158,22 +160,23 @@ only the Databricks action uses `"use node"`.
 
 `DatabricksSync.start` accepts:
 
-| Option           | Default             | Purpose                                              |
-| ---------------- | ------------------- | ---------------------------------------------------- |
-| `name`           | required            | Stable identifier for the sync and its checkpoint    |
-| `sourceTable`    | required            | One-, two-, or three-part Databricks table name      |
-| `columns`        | required            | Source columns delivered to `applyRows`              |
-| `credentials`    | required            | Host, HTTP path, token, and optional catalog         |
-| `applyRows`      | required            | Internal app mutation that applies each chunk        |
-| `continueWith`   | required            | Zero-argument internal action used for the next page |
-| `cursorColumn`   | required            | Incremental timestamp column                         |
-| `deletedColumn`  | `_fivetran_deleted` | Soft-delete flag                                     |
-| `batchSize`      | `20000`             | Rows fetched per Databricks query, max 20,000        |
-| `writeChunkSize` | `1000`              | Rows sent to each app mutation, max 1,000            |
+| Option           | Default             | Purpose                                            |
+| ---------------- | ------------------- | -------------------------------------------------- |
+| `name`           | required            | Stable identifier for the sync and its checkpoint  |
+| `sourceTable`    | required            | One-, two-, or three-part Databricks table name    |
+| `columns`        | required            | Source columns delivered to `applyRows`            |
+| `credentials`    | required            | Host, HTTP path, token, and optional catalog       |
+| `applyRows`      | required            | Internal app mutation that applies each chunk      |
+| `continueWith`   | required            | Internal action accepting the continuation `runId` |
+| `cursorColumn`   | required            | Incremental timestamp column                       |
+| `deletedColumn`  | `_fivetran_deleted` | Soft-delete flag                                   |
+| `batchSize`      | `20000`             | Rows fetched per Databricks query, max 20,000      |
+| `writeChunkSize` | `1000`              | Rows sent to each app mutation, max 1,000          |
 
 Table and column identifiers are validated and quoted. Cursor values are sent as
-bound query parameters. Databricks dates are converted to ISO strings before
-crossing the component boundary.
+bound query parameters. The cursor is projected as a string so Databricks
+timestamp precision is preserved; other dates are converted to ISO strings
+before crossing the component boundary.
 
 The cursor query deliberately uses `>=` so rows at the checkpoint boundary may
 be replayed. The app mutation therefore must be idempotent. If an entire page

@@ -75,5 +75,12 @@ export type ComponentApi<Name extends string | undefined = string | undefined> =
         null,
         Name
       >;
+      resume: FunctionReference<
+        "mutation",
+        "internal",
+        { name: string; runId: string; sourceTable: string },
+        { cursor: string | null },
+        Name
+      >;
     };
   };
