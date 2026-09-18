@@ -92,5 +92,7 @@
   },
   "types": "./dist/client/index.d.ts",
   "module": "./dist/client/index.js",
-  "dependencies": {}
+  "dependencies": {
+    "@databricks/sql": "1.17.0"
+  }
 }
