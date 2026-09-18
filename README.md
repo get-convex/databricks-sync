@@ -186,12 +186,14 @@ forever.
 ## Example
 
 The [`example`](./example) app mounts the packaged component with typed
-environment variables, syncs a customer table every 15 minutes, supports a
-manual run, and displays status and synced rows.
+environment variables, syncs the configured teams table every 15 minutes,
+supports a manual run, and displays status and synced rows.
 
 ```sh
 npm install
 npm run dev
+# In a second terminal:
+npm run dev:frontend
 ```
 
 ## Development

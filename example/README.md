@@ -17,5 +17,17 @@ npx convex env set DATABRICKS_SOURCE_TABLE fivetran.prod_postgres_public.teams
 The sample reads `id`, `name`, `slug`, `creator`, `creation_ts`, `suspended`,
 `default_region`, `_fivetran_synced`, and `_fivetran_deleted` from the source.
 
-From the repository root, run `npm run dev`. The backend syncs every 15 minutes;
-the example UI also exposes a manual **Sync now** button.
+From the repository root, start the Convex backend:
+
+```sh
+npm run dev
+```
+
+In a second terminal, start the example UI:
+
+```sh
+npm run dev:frontend
+```
+
+Open `http://localhost:5173`. The backend syncs every 15 minutes; the example UI
+also exposes a manual **Sync now** button.

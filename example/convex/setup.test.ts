@@ -4,7 +4,7 @@ import { convexTest } from "convex-test";
 import schema from "./schema.js";
 import component from "@convex-dev/databricks-sync/test";
 
-const modules = import.meta.glob("./**/*.*s");
+const modules = import.meta.glob(["./**/*.ts", "!./**/*.test.ts"]);
 // When users want to write tests that use your component, they need to
 // explicitly register it with its schema and modules.
 export function initConvexTest() {
@@ -13,4 +13,6 @@ export function initConvexTest() {
   return t;
 }
 
-test("setup", () => {});
+test("setup", () => {
+  initConvexTest();
+});

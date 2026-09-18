@@ -79,8 +79,7 @@ export default defineSchema({
   | Bytes | ArrayBuffer | `new ArrayBuffer(8)` | `v.bytes()` | Convex supports first class bytestrings, passed in as `ArrayBuffer`s. Bytestrings must be smaller than the 1MB total size limit for Convex types. |
   | Array | Array | `[1, 3.2, "abc"]` | `v.array(values)` | Arrays can have at most 8192 values. |
   | Object | Object | `{a: "abc"}` | `v.object({property: value})` | Convex only supports "plain old JavaScript objects" (objects that do not have a custom prototype). Objects can have at most 1024 entries. Field names must be nonempty and not start with "$" or "\_". |
-
-| Record | Record | `{"a": "1", "b": "2"}` | `v.record(keys, values)` | Records are objects at runtime, but can have dynamic keys. Keys must be only ASCII characters, nonempty, and not start with "$" or "\_". |
+  | Record | Record | `{"a": "1", "b": "2"}` | `v.record(keys, values)` | Records are objects at runtime, but can have dynamic keys. Keys must be only ASCII characters, nonempty, and not start with "$" or "\_". |
 
 ### Function registration
 
@@ -264,12 +263,14 @@ export const exampleQuery = query({
 
 - A query for "10 messages in channel '#general' that best match the query 'hello hi' in their body" would look like:
 
+```ts
 const messages = await ctx.db
-.query("messages")
-.withSearchIndex("search_body", (q) =>
-q.search("body", "hello hi").eq("channel", "#general"),
-)
-.take(10);
+  .query("messages")
+  .withSearchIndex("search_body", (q) =>
+    q.search("body", "hello hi").eq("channel", "#general"),
+  )
+  .take(10);
+```
 
 ## Vector search guidelines
 

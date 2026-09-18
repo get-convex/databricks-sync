@@ -21,7 +21,7 @@ export const myQueryFunction = query({
   handler: async (ctx, args) => {
     // Read the database as many times as you need here.
     // See https://docs.convex.dev/database/reading-data.
-    const documents = await ctx.db.query("tablename").collect();
+    const documents = await ctx.db.query("tablename").order("desc").take(100);
 
     // Arguments passed from the client are properties of the args object.
     console.log(args.first, args.second);

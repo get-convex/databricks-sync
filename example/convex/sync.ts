@@ -40,29 +40,40 @@ export const runScheduled = internalAction({
   },
 });
 
+export const continueRun = internalAction({
+  args: { runId: v.string() },
+  returns: v.null(),
+  handler: async (ctx, { runId }): Promise<null> => {
+    await databricks.continue(ctx, syncConfig, runId);
+    return null;
+  },
+});
+
+const syncConfig = {
+  name: syncName,
+  sourceTable: env.DATABRICKS_SOURCE_TABLE,
+  cursorColumn: "_fivetran_synced",
+  columns: [
+    "id",
+    "name",
+    "slug",
+    "creator",
+    "creation_ts",
+    "suspended",
+    "default_region",
+  ],
+  credentials: {
+    host: env.DATABRICKS_HOST,
+    path: env.DATABRICKS_HTTP_PATH,
+    token: env.DATABRICKS_TOKEN,
+    ...(env.DATABRICKS_CATALOG ? { catalog: env.DATABRICKS_CATALOG } : {}),
+  },
+  applyRows: internal.teams.applyRows,
+  continueWith: internal.sync.continueRun,
+};
+
 async function startTeamSync(
   ctx: Parameters<typeof databricks.start>[0],
 ): Promise<RunResult> {
-  return await databricks.start(ctx, {
-    name: syncName,
-    sourceTable: env.DATABRICKS_SOURCE_TABLE,
-    cursorColumn: "_fivetran_synced",
-    columns: [
-      "id",
-      "name",
-      "slug",
-      "creator",
-      "creation_ts",
-      "suspended",
-      "default_region",
-    ],
-    credentials: {
-      host: env.DATABRICKS_HOST,
-      path: env.DATABRICKS_HTTP_PATH,
-      token: env.DATABRICKS_TOKEN,
-      ...(env.DATABRICKS_CATALOG ? { catalog: env.DATABRICKS_CATALOG } : {}),
-    },
-    applyRows: internal.teams.applyRows,
-    continueWith: internal.sync.runScheduled,
-  });
+  return await databricks.start(ctx, syncConfig);
 }
