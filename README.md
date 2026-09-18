@@ -183,6 +183,17 @@ be replayed. The app mutation therefore must be idempotent. If an entire page
 has one cursor value, the component stops with an error instead of looping
 forever.
 
+## Example
+
+The [`example`](./example) app mounts the packaged component with typed
+environment variables, syncs a customer table every 15 minutes, supports a
+manual run, and displays status and synced rows.
+
+```sh
+npm install
+npm run dev
+```
+
 ## Development
 
 ```sh
