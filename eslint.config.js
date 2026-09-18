@@ -11,16 +11,21 @@ export default [
       "dist/**",
       "example/dist/**",
       "*.config.{js,mjs,cjs,ts,tsx}",
+      "example/**/*.config.{js,mjs,cjs,ts,tsx}",
       "**/_generated/",
       "initTemplate.mjs",
     ],
   },
   {
-    files: ["src/**/*.{js,mjs,cjs,ts,tsx}"],
+    files: ["src/**/*.{js,mjs,cjs,ts,tsx}", "example/**/*.{js,mjs,cjs,ts,tsx}"],
     languageOptions: {
       parser: tseslint.parser,
       parserOptions: {
-        project: ["./tsconfig.json"],
+        project: [
+          "./tsconfig.json",
+          "./example/tsconfig.json",
+          "./example/convex/tsconfig.json",
+        ],
         tsconfigRootDir: import.meta.dirname,
       },
     },
@@ -29,7 +34,7 @@ export default [
   ...tseslint.configs.recommended,
   // Convex code - Worker environment
   {
-    files: ["src/**/*.{ts,tsx}"],
+    files: ["src/**/*.{ts,tsx}", "example/convex/**/*.{ts,tsx}"],
     ignores: ["src/react/**"],
     languageOptions: {
       globals: globals.worker,
@@ -61,7 +66,7 @@ export default [
   },
   // React app code - Browser environment
   {
-    files: ["src/react/**/*.{ts,tsx}"],
+    files: ["src/react/**/*.{ts,tsx}", "example/src/**/*.{ts,tsx}"],
     languageOptions: {
       ecmaVersion: 2020,
       globals: globals.browser,
