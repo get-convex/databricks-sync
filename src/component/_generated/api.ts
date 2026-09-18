@@ -8,6 +8,9 @@
  * @module
  */
 
+import type * as state from "../state.js";
+import type * as validators from "../validators.js";
+
 import type {
   ApiFromModules,
   FilterApi,
@@ -15,7 +18,10 @@ import type {
 } from "convex/server";
 import { anyApi, componentsGeneric } from "convex/server";
 
-const fullApi: ApiFromModules<{}> = anyApi as any;
+const fullApi: ApiFromModules<{
+  state: typeof state;
+  validators: typeof validators;
+}> = anyApi as any;
 
 /**
  * A utility for referencing Convex functions in your app's public API.
