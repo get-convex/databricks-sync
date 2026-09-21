@@ -2,31 +2,45 @@ import { useAction, useQuery } from "convex/react";
 import { useState } from "react";
 import { api } from "../convex/_generated/api";
 
+type Notice = {
+  kind: "error" | "success";
+  text: string;
+};
+
 export default function App() {
   const teams = useQuery(api.teams.list);
   const status = useQuery(api.syncState.status);
   const runSync = useAction(api.sync.runNow);
-  const [message, setMessage] = useState<string | null>(null);
+  const [notice, setNotice] = useState<Notice | null>(null);
   const [running, setRunning] = useState(false);
 
   const sync = async () => {
     setRunning(true);
-    setMessage(null);
+    setNotice(null);
     try {
       const result = await runSync({});
-      setMessage(
-        result.status === "continuing"
-          ? `Read ${result.rowsRead.toLocaleString()} rows; remaining pages are continuing in the background.`
-          : result.status === "already_running"
-            ? "A sync is already running."
-            : `Sync complete. Read ${result.rowsRead.toLocaleString()} rows.`,
-      );
+      setNotice({
+        kind: "success",
+        text:
+          result.status === "continuing"
+            ? `Read ${result.rowsRead.toLocaleString()} rows; remaining pages are continuing in the background.`
+            : result.status === "already_running"
+              ? "A sync is already running."
+              : `Sync complete. Read ${result.rowsRead.toLocaleString()} rows.`,
+      });
     } catch (error) {
-      setMessage(error instanceof Error ? error.message : String(error));
+      setNotice({ kind: "error", text: describeSyncError(error) });
     } finally {
       setRunning(false);
     }
   };
+
+  const errorMessage =
+    notice?.kind === "error"
+      ? notice.text
+      : status?.lastError
+        ? describeSyncError(status.lastError)
+        : null;
 
   return (
     <main className="min-h-screen bg-[#f5f1e9] px-5 py-12 text-[#25211d] antialiased sm:py-18">
@@ -80,17 +94,20 @@ export default function App() {
           </article>
         </section>
 
-        {message && (
+        {notice?.kind === "success" && (
           <p
             className="mt-[18px] rounded-xl bg-[#eaf2e7] px-4 py-3 text-[#31512d]"
             aria-live="polite"
           >
-            {message}
+            {notice.text}
           </p>
         )}
-        {status?.lastError && (
-          <p className="mt-[18px] rounded-xl bg-[#fde9e4] px-4 py-3 text-[#812b1a]">
-            {status.lastError}
+        {errorMessage && (
+          <p
+            className="mt-[18px] rounded-xl bg-[#fde9e4] px-4 py-3 text-[#812b1a]"
+            role="alert"
+          >
+            {errorMessage}
           </p>
         )}
 
@@ -168,4 +185,12 @@ export default function App() {
       </div>
     </main>
   );
+}
+
+function describeSyncError(error: unknown) {
+  const message = error instanceof Error ? error.message : String(error);
+  if (message.includes("bad HTTP status code: 403")) {
+    return "Databricks authorization failed (403). Update DATABRICKS_TOKEN and confirm it can use the configured SQL warehouse.";
+  }
+  return message;
 }
