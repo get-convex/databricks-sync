@@ -8,20 +8,23 @@
  * @module
  */
 
-import type * as state from "../state.js";
-import type * as validators from "../validators.js";
+import type * as crons from "../crons.js";
+import type * as sync from "../sync.js";
+import type * as syncState from "../syncState.js";
+import type * as teams from "../teams.js";
 
 import type {
   ApiFromModules,
   FilterApi,
   FunctionReference,
 } from "convex/server";
-import { anyApi, componentsGeneric } from "convex/server";
 
-const fullApi: ApiFromModules<{
-  state: typeof state;
-  validators: typeof validators;
-}> = anyApi as any;
+declare const fullApi: ApiFromModules<{
+  crons: typeof crons;
+  sync: typeof sync;
+  syncState: typeof syncState;
+  teams: typeof teams;
+}>;
 
 /**
  * A utility for referencing Convex functions in your app's public API.
@@ -31,10 +34,10 @@ const fullApi: ApiFromModules<{
  * const myFunctionReference = api.myModule.myFunction;
  * ```
  */
-export const api: FilterApi<
+export declare const api: FilterApi<
   typeof fullApi,
   FunctionReference<any, "public">
-> = anyApi as any;
+>;
 
 /**
  * A utility for referencing Convex functions in your app's internal API.
@@ -44,9 +47,11 @@ export const api: FilterApi<
  * const myFunctionReference = internal.myModule.myFunction;
  * ```
  */
-export const internal: FilterApi<
+export declare const internal: FilterApi<
   typeof fullApi,
   FunctionReference<any, "internal">
-> = anyApi as any;
+>;
 
-export const components = componentsGeneric() as unknown as {};
+export declare const components: {
+  databricksSync: import("@convex-dev/databricks-sync/_generated/component.js").ComponentApi<"databricksSync">;
+};
