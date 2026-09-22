@@ -101,6 +101,6 @@
   "types": "./dist/client/index.d.ts",
   "module": "./dist/client/index.js",
   "dependencies": {
-    "@databricks/sql": "1.17.0"
+    "@databricks/sql": "2.1.0"
   }
 }
