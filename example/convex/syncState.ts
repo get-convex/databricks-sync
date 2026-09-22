@@ -1,4 +1,4 @@
-import { syncStatusValidator } from "@convex-dev/databricks-sync/validators";
+import { syncStatusValidator } from "@dawin-convex/databricks-sync/validators";
 import { v } from "convex/values";
 import { components } from "./_generated/api.js";
 import { mutation, query } from "./_generated/server.js";

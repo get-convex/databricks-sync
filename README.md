@@ -11,7 +11,7 @@ column defaults to `_fivetran_deleted` and is configurable.
 ## Install
 
 ```sh
-npm install @convex-dev/databricks-sync
+npm install @dawin-convex/databricks-sync
 ```
 
 The Databricks driver contains native dependencies. Mark it as external in the
@@ -30,7 +30,7 @@ Declare typed environment variables on the app and mount the component:
 
 ```ts
 // convex/convex.config.ts
-import databricksSync from "@convex-dev/databricks-sync/convex.config.js";
+import databricksSync from "@dawin-convex/databricks-sync/convex.config.js";
 import { defineApp } from "convex/server";
 import { v } from "convex/values";
 
@@ -87,7 +87,7 @@ Invoke the component from an action:
 // convex/sync.ts
 "use node";
 
-import { DatabricksSync } from "@convex-dev/databricks-sync";
+import { DatabricksSync } from "@dawin-convex/databricks-sync";
 import { v } from "convex/values";
 import { components, internal } from "./_generated/api";
 import { action, env, internalAction } from "./_generated/server";

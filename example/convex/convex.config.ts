@@ -1,6 +1,6 @@
 import { defineApp } from "convex/server";
 import { v } from "convex/values";
-import databricksSync from "@convex-dev/databricks-sync/convex.config.js";
+import databricksSync from "@dawin-convex/databricks-sync/convex.config.js";
 
 const app = defineApp({
   env: {

@@ -1,6 +1,6 @@
 "use node";
 
-import { DatabricksSync } from "@convex-dev/databricks-sync";
+import { DatabricksSync } from "@dawin-convex/databricks-sync";
 import { v } from "convex/values";
 import { components, internal } from "./_generated/api.js";
 import { action, env, internalAction } from "./_generated/server.js";

@@ -53,5 +53,5 @@ export declare const internal: FilterApi<
 >;
 
 export declare const components: {
-  databricksSync: import("@convex-dev/databricks-sync/_generated/component.js").ComponentApi<"databricksSync">;
+  databricksSync: import("@dawin-convex/databricks-sync/_generated/component.js").ComponentApi<"databricksSync">;
 };

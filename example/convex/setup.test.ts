@@ -2,7 +2,7 @@
 import { test } from "vitest";
 import { convexTest } from "convex-test";
 import schema from "./schema.js";
-import component from "@convex-dev/databricks-sync/test";
+import component from "@dawin-convex/databricks-sync/test";
 
 const modules = import.meta.glob(["./**/*.ts", "!./**/*.test.ts"]);
 // When users want to write tests that use your component, they need to

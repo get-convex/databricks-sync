@@ -1,4 +1,4 @@
-import type { ApplyRowsArgs } from "@convex-dev/databricks-sync";
+import type { ApplyRowsArgs } from "@dawin-convex/databricks-sync";
 import { v } from "convex/values";
 import { internalMutation, query } from "./_generated/server.js";
 

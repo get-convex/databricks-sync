@@ -1,5 +1,5 @@
 {
-  "name": "@convex-dev/databricks-sync",
+  "name": "@dawin-convex/databricks-sync",
   "description": "Incrementally sync Databricks tables into Convex.",
   "repository": "github:get-convex/databricks-sync",
   "homepage": "https://github.com/get-convex/databricks-sync#readme",
