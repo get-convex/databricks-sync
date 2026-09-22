@@ -1,0 +1,8 @@
+{
+  "functions": "example/convex",
+  "node": {
+    "externalPackages": ["@databricks/sql"],
+    "nodeVersion": "22"
+  },
+  "$schema": "./node_modules/convex/schemas/convex.schema.json"
+}
