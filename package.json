@@ -69,10 +69,12 @@
     }
   },
   "peerDependencies": {
+    "@databricks/sql": "1.17.0",
     "convex": "^1.43.0"
   },
   "devDependencies": {
     "@convex-dev/eslint-plugin": "^5.0.0",
+    "@databricks/sql": "1.17.0",
     "@edge-runtime/vm": "^5.0.0",
     "@eslint/eslintrc": "^3.3.6",
     "@eslint/js": "9.39.5",
@@ -102,8 +104,5 @@
     "vitest": "4.1.11"
   },
   "types": "./dist/client/index.d.ts",
-  "module": "./dist/client/index.js",
-  "dependencies": {
-    "@databricks/sql": "2.1.0"
-  }
+  "module": "./dist/client/index.js"
 }

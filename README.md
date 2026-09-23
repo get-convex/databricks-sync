@@ -11,11 +11,12 @@ column defaults to `_fivetran_deleted` and is configurable.
 ## Install
 
 ```sh
-npm install @dawin-convex/databricks-sync
+npm install @dawin-convex/databricks-sync @databricks/sql@1.17.0
 ```
 
-The Databricks driver contains native dependencies. Mark it as external in the
-app's `convex.json`:
+The Databricks driver is a peer dependency because Convex must install its
+native dependencies as an external Node package. Install version `1.17.0`
+directly in the app, then mark it as external in the app's `convex.json`:
 
 ```json
 {
